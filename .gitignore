@@ -1,0 +1,47 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# NestJS
+dist/
+dist-test/
+
+# Prisma
+*.db
+*.db-journal
+
+# Environment Variables
+.env
+.env.*.local
+.env.local
+
+# IDE / Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# macOS
+.DS_Store
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+logs/
+*.log
+
+# Coverage
+coverage/
+.nyc_output/

@@ -1,0 +1,367 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  DOCTOR
+  RECEPTIONIST
+  LAB_TECHNICIAN
+  REFERRAL_DOCTOR
+}
+
+model SequenceCounter {
+  id    String @id
+  value Int    @default(0)
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  UNKNOWN
+}
+
+enum SpecimenType {
+  BLOOD
+  URINE
+  CSF
+  SWAB
+}
+
+enum ContainerType {
+  EDTA_LAVENDER
+  SST_YELLOW
+  FLUORIDE_GREY
+  STERILE_CONTAINER
+}
+
+enum OrderStatus {
+  REGISTERED
+  PARTIALLY_PROCESSED
+  COMPLETED
+  CANCELLED
+}
+
+enum OrderItemStatus {
+  PENDING
+  PROCESSING
+  RESULT_ENTERED
+  APPROVED
+  REPORTED
+  CANCELLED
+}
+
+enum SampleStatus {
+  PENDING
+  COLLECTED
+  IN_TRANSIT
+  RECEIVED
+  PROCESSING
+  COMPLETED
+  REJECTED
+}
+
+enum ResultStatus {
+  PENDING
+  ENTERED
+  VERIFIED
+}
+
+enum EntryMode {
+  MANUAL
+  AUTOMATIC
+}
+
+enum ReferralStatus {
+  NEW
+  PATIENT_REGISTERED
+  ORDER_CREATED
+  SAMPLE_COLLECTED
+  RESULT_ENTERED
+  VERIFIED
+  RESULT_READY
+  REPORT_SHARED
+  CLOSED
+}
+
+enum AbnormalFlag {
+  NORMAL
+  LOW
+  HIGH
+  CRITICAL
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  isActive  Boolean  @default(true)
+  
+  orders    TestOrder[]
+  referralDoctorProfile ReferralDoctorProfile?
+  reportViews ReportView[]
+  registeredPatients Patient[] @relation("RegisteredPatients")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Patient {
+  id          String   @id @default(uuid())
+  mrn         String   @unique
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime
+  gender      Gender
+  phone       String?
+  email       String?
+  
+  orders      TestOrder[]
+  referralRequests ReferralRequest[]
+
+  registeredByUserId String?
+  registeredByUser   User?    @relation("RegisteredPatients", fields: [registeredByUserId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Test {
+  id                  String        @id @default(uuid())
+  testCode            String        @unique
+  testName            String
+  description         String?
+  specimenType        SpecimenType
+  containerType       ContainerType
+  fastingRequired     Boolean       @default(false)
+  turnaroundTimeHours Int
+  price               Float
+  isActive            Boolean       @default(true)
+  
+  orderItems          OrderItem[]
+  referralRequests    ReferralRequest[]
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+}
+
+model TestOrder {
+  id                String       @id @default(uuid())
+  orderNumber       String       @unique
+  
+  patientId         String
+  patient           Patient      @relation(fields: [patientId], references: [id])
+  
+  referringDoctorId String?
+  referringDoctor   User?        @relation(fields: [referringDoctorId], references: [id])
+  
+  referralRequestId String?      @unique
+  referralRequest   ReferralRequest? @relation(fields: [referralRequestId], references: [id])
+  
+  orderStatus       OrderStatus  @default(REGISTERED)
+  totalAmount       Float
+  
+  items             OrderItem[]
+  samples           Sample[]
+  reportViews       ReportView[]
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([patientId])
+  @@index([referringDoctorId])
+  @@index([referralRequestId])
+}
+
+model ReportView {
+  id        String    @id @default(uuid())
+  orderId   String
+  order     TestOrder @relation(fields: [orderId], references: [id])
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  viewedAt  DateTime  @default(now())
+
+  @@unique([userId, orderId])
+  @@index([userId])
+  @@index([orderId])
+}
+
+model OrderItem {
+  id                String          @id @default(uuid())
+  
+  testOrderId       String
+  testOrder         TestOrder       @relation(fields: [testOrderId], references: [id])
+  
+  testId            String
+  test              Test            @relation(fields: [testId], references: [id])
+  
+  testNameSnapshot  String
+  unitPrice         Float
+  
+  status            OrderItemStatus @default(PENDING)
+  
+  sample            Sample?
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([testOrderId])
+  @@index([testId])
+}
+
+model Sample {
+  id                String       @id @default(uuid())
+  barcode           String       @unique
+  sampleNumber      String       @unique
+  
+  testOrderId       String
+  testOrder         TestOrder    @relation(fields: [testOrderId], references: [id])
+  
+  orderItemId       String       @unique
+  orderItem         OrderItem    @relation(fields: [orderItemId], references: [id])
+  
+  status            SampleStatus @default(COLLECTED)
+  
+  results           Result[]
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([testOrderId])
+  @@index([orderItemId])
+}
+
+model Result {
+  id              String       @id @default(uuid())
+  
+  sampleId        String
+  sample          Sample       @relation(fields: [sampleId], references: [id])
+  
+  parameterCode   String
+  parameterName   String
+  resultValue     String
+  unit            String
+  referenceRange  String
+  abnormalFlag    AbnormalFlag @default(NORMAL)
+  interpretation  String?
+  
+  resultStatus    ResultStatus @default(ENTERED)
+  entryMode       EntryMode    @default(MANUAL)
+  
+  enteredBy       String?
+  enteredAt       DateTime     @default(now())
+  
+  verifiedBy      String?
+  verifiedAt      DateTime?
+  
+  remarks         String?
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([sampleId])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  oldValue  Json?
+  newValue  Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+}
+
+model HospitalSettings {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       Json
+  description String?
+  updatedBy   String?
+  updatedAt   DateTime @updatedAt
+}
+
+model ReferralHospital {
+  id           String           @id @default(uuid())
+  hospitalCode String           @unique
+  name         String
+  address      String?
+  contactEmail String?
+  contactPhone String?
+  isActive     Boolean          @default(true)
+  
+  doctors      ReferralDoctorProfile[]
+
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model ReferralDoctorProfile {
+  id             String           @id @default(uuid())
+  doctorCode     String           @unique
+  firstName      String
+  lastName       String
+  specialization String?
+  phone          String?
+  
+  userId         String           @unique
+  user           User             @relation(fields: [userId], references: [id])
+  
+  hospitalId     String
+  hospital       ReferralHospital @relation(fields: [hospitalId], references: [id])
+  
+  referralRequests ReferralRequest[]
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([hospitalId])
+}
+
+model ReferralRequest {
+  id               String         @id @default(uuid())
+  referralNumber   String         @unique
+  status           ReferralStatus @default(NEW)
+  notes            String?
+  priority         String?        @default("ROUTINE")
+  reason           String?
+  
+  referralDoctorId String
+  referralDoctor   ReferralDoctorProfile @relation(fields: [referralDoctorId], references: [id])
+  
+  patientId        String?
+  patient          Patient?       @relation(fields: [patientId], references: [id])
+  
+  requestedTests   Test[]
+  
+  testOrder        TestOrder?
+
+  createdBy        String?
+  receivedAt       DateTime       @default(now())
+  registeredAt     DateTime?
+  sharedBy         String?
+  sharedAt         DateTime?
+  closedAt         DateTime?
+  
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([referralDoctorId])
+  @@index([patientId])
+}

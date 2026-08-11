@@ -1,0 +1,16 @@
+{
+  "phases": {
+    "receptionist_order": "PASS",
+    "lab_technician": "PASS"
+  },
+  "dbIntegrity": {
+    "before": {
+      "patients": 4,
+      "orders": 8,
+      "items": 15,
+      "samples": 15,
+      "results": 11
+    }
+  },
+  "error": "Verify failed: {\"message\":\"Result with ID undefined not found\",\"error\":\"Not Found\",\"statusCode\":404}"
+}

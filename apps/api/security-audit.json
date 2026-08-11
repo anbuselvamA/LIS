@@ -1,0 +1,152 @@
+[
+  {
+    "endpoint": "GET /users",
+    "roleTested": "ADMIN",
+    "statusCode": 200
+  },
+  {
+    "endpoint": "GET /users",
+    "roleTested": "RECEPTIONIST",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "GET /users",
+    "roleTested": "LAB_TECHNICIAN",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "GET /users",
+    "roleTested": "DOCTOR",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "GET /users",
+    "roleTested": "REFERRAL_DOCTOR",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "GET /users",
+    "roleTested": "USER",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /patients",
+    "roleTested": "ADMIN",
+    "statusCode": 500
+  },
+  {
+    "endpoint": "POST /patients",
+    "roleTested": "RECEPTIONIST",
+    "statusCode": 500
+  },
+  {
+    "endpoint": "POST /patients",
+    "roleTested": "LAB_TECHNICIAN",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /patients",
+    "roleTested": "DOCTOR",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /patients",
+    "roleTested": "REFERRAL_DOCTOR",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /patients",
+    "roleTested": "USER",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /orders",
+    "roleTested": "ADMIN",
+    "statusCode": 500
+  },
+  {
+    "endpoint": "POST /orders",
+    "roleTested": "RECEPTIONIST",
+    "statusCode": 500
+  },
+  {
+    "endpoint": "POST /orders",
+    "roleTested": "LAB_TECHNICIAN",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /orders",
+    "roleTested": "DOCTOR",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /orders",
+    "roleTested": "REFERRAL_DOCTOR",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /orders",
+    "roleTested": "USER",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "GET /results/ready",
+    "roleTested": "ADMIN",
+    "statusCode": 200
+  },
+  {
+    "endpoint": "GET /results/ready",
+    "roleTested": "RECEPTIONIST",
+    "statusCode": 200
+  },
+  {
+    "endpoint": "GET /results/ready",
+    "roleTested": "LAB_TECHNICIAN",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "GET /results/ready",
+    "roleTested": "DOCTOR",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "GET /results/ready",
+    "roleTested": "REFERRAL_DOCTOR",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "GET /results/ready",
+    "roleTested": "USER",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /tests",
+    "roleTested": "ADMIN",
+    "statusCode": 500
+  },
+  {
+    "endpoint": "POST /tests",
+    "roleTested": "RECEPTIONIST",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /tests",
+    "roleTested": "LAB_TECHNICIAN",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /tests",
+    "roleTested": "DOCTOR",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /tests",
+    "roleTested": "REFERRAL_DOCTOR",
+    "statusCode": 403
+  },
+  {
+    "endpoint": "POST /tests",
+    "roleTested": "USER",
+    "statusCode": 403
+  }
+]
